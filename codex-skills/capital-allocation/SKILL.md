@@ -65,10 +65,13 @@ If no candidate is explicit, derive the universe from the latest `portfolio-revi
 
 1. first include lines marked `Increase` or an unambiguous localized equivalent;
 2. then include lines marked `Hold / Increase` or an unambiguous localized equivalent;
-3. always include `Cash` as an alternative;
-4. never treat the entire portfolio as the allocation universe.
+3. add companies with a documented trigger newer than the portfolio review;
+4. always include `Cash` as an alternative;
+5. never treat the entire portfolio as the allocation universe.
 
-Before searching candidate reports, eliminate a company from the eligible ranking when the portfolio review already proves that it is above its target, at its upper bound, would exceed the upper bound after buying one whole share, breaches a sector or income-pocket cap, or would breach minimum cash. Keep it in the candidate-status table with principal status `ALLOCATION BLOCK`; any missing reports are secondary future work. Use a reliable dated price and exchange rate for the one-share test; if either is unavailable, do not invent the result. When no company remains after this portfolio filter, return exactly:
+Before concluding that the review approves no candidate, scan report filenames and contents for newer `investment-checklist`, `thesis-tracker`, `earnings-review`, `investment-research`, or `investment-team` evidence. Add a company only when the report explicitly supports one of the documented triggers below; a recent file alone is not a trigger.
+
+Eliminate a company from the eligible ranking when the portfolio review already proves that it is above its target, at its upper bound, would exceed the upper bound after buying one whole share, breaches a sector or income-pocket cap, or would breach minimum cash. A newer trigger never overrides these strategic constraints. Keep the company in the candidate-status table with principal status `ALLOCATION BLOCK`; any missing reports are secondary future work. Use a reliable dated price and exchange rate for the one-share test; if either is unavailable, do not invent the result. When no company remains after both portfolio and newer-trigger discovery, return exactly:
 
 ```text
 Decision: HOLD CASH
@@ -142,6 +145,18 @@ For `income-satellite`, `cyclical-income`, high-yield, highly leveraged, or divi
 - `thesis-tracker`: update after purchase, significant reinforcement, or a material fundamental change.
 
 An existing but outdated document is `stale`, never `missing`. Display `STALE DATA`, state what must be refreshed, and do not silently reuse a stale price-sensitive conclusion.
+
+## Documented Allocation Triggers
+
+The `portfolio-review` remains the primary strategic source, but it is not the only allocation trigger. Accept exactly these documented triggers:
+
+1. the portfolio review explicitly recommends an increase;
+2. a more recent `investment-checklist` explicitly concludes `BUY`, purchasable, or adequate margin of safety at the current price;
+3. a reliable current price is at or below a buy zone recorded in an existing report;
+4. a new or updated thesis explicitly documents a material structural improvement, durable quality gain, major debt reduction, or improved capital allocation;
+5. a recent results report explicitly documents a material improvement in results, sustainable FCF, dividend growth, or balance-sheet quality.
+
+Compare report dates and show `Portfolio Review date`, `Latest analysis used`, and `Selected trigger`. Prefer the portfolio-review trigger when it remains current; a newer trigger may complement it or add a candidate. Never infer a trigger from recency, create a buy zone, or treat a positive event as sufficient by itself: every candidate still passes allocation, price, quality, and documentation gates. If sources conflict, retain the more conservative conclusion unless the newer report explicitly resolves the older blocker.
 
 ## Decision Principles
 
@@ -226,6 +241,16 @@ Use `HOLD — DO NOT ADD` when an existing position is acceptable to retain but 
 
 `HOLD CASH` is the portfolio decision when no `ELIGIBLE` candidate deserves capital. A documented candidate can be a good business, a good dividend payer, or a reasonable existing holding without being eligible for reinforcement.
 
+## Capital Deployment Status
+
+Assign exactly one portfolio readiness state without replacing the existing decision or candidate statuses:
+
+- `READY TO DEPLOY`: at least one candidate has a documented trigger and passes quality, price, allocation, and documentation gates.
+- `WAITING FOR TRIGGER`: the portfolio is healthy and at least one credible candidate exists, but an observable condition such as price, refreshed checklist, results, thesis evidence, or weight capacity is not yet satisfied.
+- `NOT READY`: deployable cash or documentation is insufficient, concentration is structurally excessive, or no credible candidate exists.
+
+For `WAITING FOR TRIGGER` and `NOT READY`, produce short, concrete `Unlock Conditions` supported by existing evidence, such as a documented maximum price, named report refresh, specified result, or weight threshold. Never invent one. When none is documented, write exactly: `No documented trigger currently available.`
+
 ## Execution Workflow
 
 ### A. Establish Portfolio Context and Cash
@@ -242,13 +267,15 @@ Compare both with the cash target or minimum from `portfolio-review`. If the min
 
 ### B. Select and Pre-filter Candidates
 
-Apply explicit or automatic selection rules, then test allocation feasibility before checking every potential document. Record allocation failures as principal blockers and absent reports only as future work.
+Apply explicit or automatic selection rules. In automatic mode, scan for newer documented triggers before deciding that the portfolio review offers no candidate. Then test allocation feasibility and record allocation failures as principal blockers.
 
 ### C. Discover and Read Candidate Evidence
 
 For each in-scope candidate, run repository report discovery, read the matches, build the evidence map, and label each document `found`, `missing`, `not required`, or `stale`. Do this before any missing-document conclusion.
 
-### D. Classify Candidates and Measure Target Gaps
+### D. Select the Trigger, Classify Candidates, and Measure Target Gaps
+
+For each candidate, compare the portfolio-review date with the latest relevant evidence and name the selected trigger. No trigger means no allocation, even when the candidate remains worth monitoring.
 
 For each eligible position:
 
@@ -310,6 +337,18 @@ A nearby ex-dividend date never justifies a rushed purchase and is not a free ga
 ## Required Report Format
 
 Save the report to `reports/capital-allocation-{YYYYMMDD}.md`. Use these headings exactly once:
+
+## Capital Deployment Status
+
+```text
+Status: READY TO DEPLOY | WAITING FOR TRIGGER | NOT READY
+Portfolio Review date:
+Latest analysis used:
+Selected trigger:
+Reason:
+```
+
+For `WAITING FOR TRIGGER` and `NOT READY`, follow it with `## Unlock Conditions` and a short evidence-backed list. Omit that heading for `READY TO DEPLOY`.
 
 ## 1. Executive decision
 
@@ -390,15 +429,25 @@ End with a limitations statement and reminder that the report is decision suppor
 
 ## Usage Examples
 
-- `/capital-allocation`: use reported cash, default to `balanced`, and select `Increase` then `Hold / Increase` lines automatically. If the review approves none, return `HOLD CASH` without requesting a candidate list.
+- `/capital-allocation`: use reported cash, default to `balanced`, select review candidates, then check newer documented triggers before returning `HOLD CASH`.
 - `/capital-allocation --external-capital 500`: add 500 units to reported cash and evaluate the full mobilizable cash balance.
 - `/capital-allocation --candidates "TotalEnergies"`: analyze only TotalEnergies and Cash, with explicit-user selection origin.
-- `/capital-allocation --mode income`: apply income-report, dividend-safety, line-cap, and income-pocket rules while allowing zero investment.
 
 ## Illustrative Output Example
 
 ```markdown
 # Capital Allocation Report
+
+## Capital Deployment Status
+Status: WAITING FOR TRIGGER
+Portfolio Review date: 2026-07-15
+Latest analysis used: Itochu checklist dated 2026-07-18
+Selected trigger: None; documented buy zone not reached
+Reason: credible candidates exist, but none passes every gate today
+
+## Unlock Conditions
+- Itochu enters its documented buy zone.
+- Verizon receives a newer documented add conclusion.
 
 ## 1. Executive decision
 Decision: HOLD CASH
@@ -418,7 +467,6 @@ Mode: Explicit user choice
 | Itochu | Found | Found | Not required | Not required | Found |
 | Verizon | Found | Found | Found | Not required | Found |
 | Coca-Cola | Missing | Missing | Not required | Not required | Found |
-| Cash | Not required | Not required | Not required | Not required | Found |
 
 ## 4. Candidate status
 | Candidate | Principal status | Secondary blockers | Next action |
@@ -426,7 +474,6 @@ Mode: Explicit user choice
 | Itochu | DOCUMENTED — PRICE BLOCK | None | Wait for the documented buy zone |
 | Verizon | HOLD — DO NOT ADD | None | Monitor FCF and debt |
 | Coca-Cola | DOCUMENTATION MISSING | Research, checklist | Complete both analyses |
-| Cash | HOLD CASH | None | Re-run on an unlock condition |
 
 ## 5. Eligible candidate ranking
 No eligible candidates.
