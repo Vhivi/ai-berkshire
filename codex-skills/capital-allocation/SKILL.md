@@ -155,8 +155,9 @@ The `portfolio-review` remains the primary strategic source, but it is not the o
 3. a reliable current price is at or below a buy zone recorded in an existing report;
 4. a new or updated thesis explicitly documents a material structural improvement, durable quality gain, major debt reduction, or improved capital allocation;
 5. a recent results report explicitly documents a material improvement in results, sustainable FCF, dividend growth, or balance-sheet quality.
+6. another report newer than the portfolio review explicitly documents an actionable opportunity.
 
-Compare report dates and show `Portfolio Review date`, `Latest analysis used`, and `Selected trigger`. Prefer the portfolio-review trigger when it remains current; a newer trigger may complement it or add a candidate. Never infer a trigger from recency, create a buy zone, or treat a positive event as sufficient by itself: every candidate still passes allocation, price, quality, and documentation gates. If sources conflict, retain the more conservative conclusion unless the newer report explicitly resolves the older blocker.
+Compare report dates and select the first supported trigger in this priority order. Show the portfolio-review date, triggering-source date, selected source, and why it is primary or complementary. Prefer the portfolio-review trigger when it remains current; a newer trigger may complement it or add a candidate. Never infer a trigger from recency, create a buy zone, or treat a positive event as sufficient by itself: every candidate still passes allocation, price, quality, and documentation gates. If sources conflict, retain the more conservative conclusion unless the newer report explicitly resolves the older blocker.
 
 ## Decision Principles
 
@@ -245,11 +246,11 @@ Use `HOLD — DO NOT ADD` when an existing position is acceptable to retain but 
 
 Assign exactly one portfolio readiness state without replacing the existing decision or candidate statuses:
 
-- `READY TO DEPLOY`: at least one candidate has a documented trigger and passes quality, price, allocation, and documentation gates.
-- `WAITING FOR TRIGGER`: the portfolio is healthy and at least one credible candidate exists, but an observable condition such as price, refreshed checklist, results, thesis evidence, or weight capacity is not yet satisfied.
-- `NOT READY`: deployable cash or documentation is insufficient, concentration is structurally excessive, or no credible candidate exists.
+- `READY TO DEPLOY`: the portfolio is healthy, cash is deployable, and at least one candidate can be executed now after passing trigger, quality, price, allocation, and documentation gates.
+- `WAITING FOR TRIGGER`: the portfolio is healthy, sufficient cash is available, no candidate is currently eligible, and at least one concrete documented unlock condition exists. This is the normal state of a prepared but disciplined portfolio.
+- `NOT READY`: a structural issue prevents reliable allocation, such as essential documentation missing or stale, migration in progress, excessive concentration, minimum cash not met, too many thesis-less positions, inconsistent data, or no credible candidate and no documented unlock condition.
 
-For `WAITING FOR TRIGGER` and `NOT READY`, produce short, concrete `Unlock Conditions` supported by existing evidence, such as a documented maximum price, named report refresh, specified result, or weight threshold. Never invent one. When none is documented, write exactly: `No documented trigger currently available.`
+Evaluate structural readiness first, then immediate eligibility, then documented waiting conditions. Do not use `NOT READY` merely because no opportunity is attractive today. For `WAITING FOR TRIGGER` and `NOT READY`, produce short, measurable `Unlock Conditions` supported by existing evidence, such as a documented maximum price, named report refresh, specified result, weight threshold, or post-trade cash floor. Never invent one or use vague instructions such as “monitor the market.” When none exists, write exactly: `No documented unlock condition is currently available.`
 
 ## Execution Workflow
 
@@ -271,7 +272,7 @@ Apply explicit or automatic selection rules. In automatic mode, scan for newer d
 
 ### C. Discover and Read Candidate Evidence
 
-For each in-scope candidate, run repository report discovery, read the matches, build the evidence map, and label each document `found`, `missing`, `not required`, or `stale`. Do this before any missing-document conclusion.
+For each in-scope candidate, search the latest portfolio review, investment checklist, investment research, income investment, thesis tracker, documented buy zones, earnings review, and investment team evidence. Read the matches, build both the evidence map and Trigger Scan, and label freshness before any missing-document or no-trigger conclusion. Mark a source `Searched: Yes` only after actually searching it.
 
 ### D. Select the Trigger, Classify Candidates, and Measure Target Gaps
 
@@ -341,14 +342,33 @@ Save the report to `reports/capital-allocation-{YYYYMMDD}.md`. Use these heading
 ## Capital Deployment Status
 
 ```text
-Status: READY TO DEPLOY | WAITING FOR TRIGGER | NOT READY
-Portfolio Review date:
-Latest analysis used:
-Selected trigger:
-Reason:
+Decision:
+Capital Deployment Status: READY TO DEPLOY | WAITING FOR TRIGGER | NOT READY
+Portfolio Health:
+Active trigger:
+Current action:
 ```
 
-For `WAITING FOR TRIGGER` and `NOT READY`, follow it with `## Unlock Conditions` and a short evidence-backed list. Omit that heading for `READY TO DEPLOY`.
+## Portfolio Readiness
+
+```text
+Portfolio health:
+Investment discipline:
+Cash availability:
+Documentation quality:
+Active opportunity:
+```
+
+Add a calm factual synthesis only when supported, such as `The portfolio is ready. The market is not yet offering a sufficiently attractive opportunity.` or `Waiting is an active decision, not an absence of decision.`
+
+## Trigger Scan
+
+| Source | Searched | Found | Date | Freshness | Trigger |
+|---|---|---|---|---|---|
+
+Include Portfolio Review, Investment Checklist, Investment Research, Income Investment, Thesis Tracker, Buy Zones, Earnings Review, and Investment Team. Use one row per candidate/source when needed. Show `Yes` only after a search, preserve unknown dates as unknown, and apply the existing freshness rules. Then show `Selected trigger`, triggering-source date, and `Selection reason`. If none is active, write: `No active trigger found after reviewing all available sources.`
+
+For `WAITING FOR TRIGGER` and `NOT READY`, follow the scan with `## Unlock Conditions` and a short evidence-backed list. Omit that heading for `READY TO DEPLOY`.
 
 ## 1. Executive decision
 
@@ -427,27 +447,45 @@ List only genuinely missing or stale reports. Separately list `thesis-tracker` a
 
 End with a limitations statement and reminder that the report is decision support, not a return guarantee.
 
-## Usage Examples
-
-- `/capital-allocation`: use reported cash, default to `balanced`, select review candidates, then check newer documented triggers before returning `HOLD CASH`.
-- `/capital-allocation --external-capital 500`: add 500 units to reported cash and evaluate the full mobilizable cash balance.
-- `/capital-allocation --candidates "TotalEnergies"`: analyze only TotalEnergies and Cash, with explicit-user selection origin.
-
 ## Illustrative Output Example
 
 ```markdown
 # Capital Allocation Report
 
 ## Capital Deployment Status
-Status: WAITING FOR TRIGGER
-Portfolio Review date: 2026-07-15
-Latest analysis used: Itochu checklist dated 2026-07-18
-Selected trigger: None; documented buy zone not reached
-Reason: credible candidates exist, but none passes every gate today
+Decision: HOLD CASH
+Capital Deployment Status: WAITING FOR TRIGGER
+Portfolio Health: Healthy
+Active trigger: None
+Current action: Retain cash and monitor documented unlock conditions.
+
+## Portfolio Readiness
+Portfolio health: Healthy
+Investment discipline: Maintained
+Cash availability: Sufficient
+Documentation quality: Good
+Active opportunity: None
+
+The portfolio is ready. The market is not yet offering a sufficiently attractive opportunity.
+
+## Trigger Scan
+| Source | Searched | Found | Date | Freshness | Trigger |
+|---|---|---|---|---|---|
+| Portfolio Review | Yes | Yes | 2026-07-15 | Current | No increase |
+| Investment Checklist | Yes | Yes | 2026-07-18 | Current | No BUY |
+| Investment Research | Yes | Yes | 2026-07-07 | Current | No change |
+| Income Investment | Yes | Yes | 2026-07-10 | Current | No income trigger |
+| Thesis Tracker | Yes | No | Unknown | Unknown | None |
+| Buy Zones | Yes | Yes | 2026-07-07 | Current | No zone reached |
+| Earnings Review | Yes | No | Unknown | Unknown | None |
+| Investment Team | Yes | No | Unknown | Unknown | None |
+
+Selected trigger: None
+No active trigger found after reviewing all available sources.
 
 ## Unlock Conditions
-- Itochu enters its documented buy zone.
-- Verizon receives a newer documented add conclusion.
+- Itochu at or below its documented maximum buy price.
+- A newer Verizon checklist explicitly concludes BUY.
 
 ## 1. Executive decision
 Decision: HOLD CASH
@@ -458,47 +496,9 @@ Capital allocated: 0.00 EUR
 Cash retained: 1,546.58 EUR
 Confidence: High
 
-## 2. Candidate selection origin
-Mode: Explicit user choice
-
-## 3. Evidence map
-| Candidate | Research | Checklist | Income | Thesis | Portfolio target |
-|---|---|---|---|---|---|
-| Itochu | Found | Found | Not required | Not required | Found |
-| Verizon | Found | Found | Found | Not required | Found |
-| Coca-Cola | Missing | Missing | Not required | Not required | Found |
-
-## 4. Candidate status
-| Candidate | Principal status | Secondary blockers | Next action |
-|---|---|---|---|
-| Itochu | DOCUMENTED — PRICE BLOCK | None | Wait for the documented buy zone |
-| Verizon | HOLD — DO NOT ADD | None | Monitor FCF and debt |
-| Coca-Cola | DOCUMENTATION MISSING | Research, checklist | Complete both analyses |
-
-## 5. Eligible candidate ranking
-No eligible candidates.
-HOLD CASH.
-
-## 6. Documented but blocked candidates
-| Candidate | Block type | Current conclusion | Unlock condition |
-|---|---|---|---|
-| Itochu | Price | High-quality business, price too high | Price enters the buy zone |
-| Verizon | Hold | Covered dividend, do not add | New favorable documented conclusion |
-
-## 7. Cash comparison
-Cash preserves optionality; no candidate compensates for its risk at current prices and constraints.
-
 ## 8. Execution plan
 No order to place.
 Re-run the skill when an unlock condition is met.
-
-## 9. Journal entry
-| Date | Capital available | Decision | Allocation | Cash retained | Reports used | Main justification | Next step |
-|---|---:|---|---|---:|---|---|---|
-| 2026-07-19 | 1,546.58 EUR | HOLD CASH | None | 1,546.58 EUR | Portfolio and matched reports | No eligible candidate | Wait or complete analyses |
-
-## 10. Next analyses
-- Coca-Cola: investment-research and investment-checklist.
 ```
 
 ## Release Audit
