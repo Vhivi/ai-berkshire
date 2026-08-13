@@ -42,6 +42,8 @@ Only ask for confirmation when:
 
 Do not invent missing prices, exchange rates, weights, dividends, yields, fees, tax treatment, target ranges, or report availability. Ask explicitly for missing decision-critical inputs. If they cannot be obtained after repository discovery, retain the capital in cash and list the exact missing evidence.
 
+Treat the latest usable `portfolio-review` as the validated structural starting point. `portfolio-review` owns portfolio structure, concentration, factors, reductions, exits, holds, and overall portfolio health; `capital-allocation` answers only: **what is the best marginal use of the next available euro?** When that review concludes `NO IMMEDIATE TRADE REQUIRED` or an unambiguous localized equivalent, accept the current structure unless newer evidence explicitly invalidates it. Future cleanup work or descriptive observations are not immediate allocation blocks.
+
 ## Candidate Scope
 
 If `--candidates` is provided, or the user names a candidate in a conversational reply, analyze only those named companies and `Cash`. Set the selection origin to `Explicit user choice`. Use every other holding solely for portfolio constraints; do not justify why it was excluded and do not assign it a status or rank.
@@ -50,18 +52,15 @@ If no candidate is explicit, derive the universe from the latest `portfolio-revi
 
 1. first include lines marked `Increase` or an unambiguous localized equivalent;
 2. then include lines marked `Hold / Increase` or an unambiguous localized equivalent;
-3. add companies with a documented trigger newer than the portfolio review;
-4. always include `Cash` as an alternative;
-5. never treat the entire portfolio as the allocation universe.
+3. add existing positions whose thesis is intact, that may improve an underrepresented factor, whose current and plausible post-allocation weights are compatible, and that have no explicit `do not add`, reduction, exit, or portfolio-constraint block;
+4. add companies with a documented trigger newer than the portfolio review;
+5. always include `Cash` as an alternative;
+6. treat included holdings as **candidates to evaluate**, never as candidates already approved to buy;
+7. do not include the entire portfolio without applying these economic filters.
 
-Before concluding that the review approves no candidate, scan report filenames and contents for newer `investment-checklist`, `thesis-tracker`, `earnings-review`, `investment-research`, or `investment-team` evidence. Add a company only when the report explicitly supports one of the documented triggers below; a recent file alone is not a trigger.
+Before concluding that no candidate is economically relevant, scan report filenames and contents for newer `investment-checklist`, `thesis-tracker`, `earnings-review`, `investment-research`, or `investment-team` evidence. A documented trigger can add or accelerate a candidate, but absence of a trigger does not prevent evaluation of an economically relevant existing position. A recent file alone is not a trigger.
 
-Eliminate a company from the eligible ranking when the portfolio review already proves that it is above its target, at its upper bound, would exceed the upper bound after buying one whole share, breaches a sector or income-pocket cap, or would breach minimum cash. A newer trigger never overrides these strategic constraints. Keep the company in the candidate-status table with principal status `ALLOCATION BLOCK`; any missing reports are secondary future work. Use a reliable dated price and exchange rate for the one-share test; if either is unavailable, do not invent the result. When no company remains after both portfolio and newer-trigger discovery, return exactly:
-
-```text
-Decision: HOLD CASH
-Reason: no candidate approved by the portfolio-review.
-```
+Eliminate a company from the eligible ranking when the portfolio review already proves that it is above its upper bound, would exceed the upper bound after buying one whole share, breaches a sector, factor, or income-pocket cap, or would breach minimum cash. A newer trigger never overrides these strategic constraints. Keep the company in the candidate-status table with principal status `BLOCK` and the exact constraint; any missing reports are secondary future work. Use a reliable dated price and exchange rate for the one-share test; if either is unavailable, do not invent the result. Do not return early merely because the portfolio review contains no `Increase` label; complete candidate discovery and marginal evaluation first.
 
 ## Repository Report Discovery
 
@@ -142,7 +141,7 @@ The `portfolio-review` remains the primary strategic source, but it is not the o
 5. a recent results report explicitly documents a material improvement in results, sustainable FCF, dividend growth, or balance-sheet quality.
 6. another report newer than the portfolio review explicitly documents an actionable opportunity.
 
-Compare report dates and select the first supported trigger in this priority order. Show the portfolio-review date, triggering-source date, selected source, and why it is primary or complementary. Prefer the portfolio-review trigger when it remains current; a newer trigger may complement it or add a candidate. Never infer a trigger from recency, create a buy zone, or treat a positive event as sufficient by itself: every candidate still passes allocation, price, quality, and documentation gates. If sources conflict, retain the more conservative conclusion unless the newer report explicitly resolves the older blocker.
+Compare report dates and select the first supported trigger in this priority order. Show the portfolio-review date, triggering-source date, selected source, and why it is primary or complementary. Prefer the portfolio-review trigger when it remains current; a newer trigger may complement it, add a candidate, or accelerate its review. Never infer a trigger from recency, create a buy zone, or treat a positive event as sufficient by itself: every candidate still passes thesis, quality, price, factor, post-allocation weight, cash, and decision-data gates. If sources conflict, retain the more conservative conclusion unless the newer report explicitly resolves the older blocker. Trigger Scan is not the sole entry mechanism for economically relevant existing positions.
 
 ## Decision Principles
 
@@ -151,10 +150,11 @@ Apply this priority order:
 1. capital preservation;
 2. business quality;
 3. margin of safety;
-4. consistency with portfolio target weights;
-5. long-term capital growth;
-6. durable income;
-7. dividend timing only as a secondary consideration.
+4. marginal factor contribution;
+5. consistency of post-allocation weight with portfolio limits;
+6. long-term capital growth;
+7. durable income;
+8. dividend timing only as a secondary consideration.
 
 Use Duan Yongping for business simplicity and excellence, Buffett for intrinsic value and margin of safety, Munger for inversion and vetoes, Li Lu for long-term economic certainty, and `income-investment` for dividend durability.
 
@@ -174,7 +174,9 @@ Dividend yield never compensates for a weak thesis, excessive debt, poor coverag
 
 ## Roles and Sizing
 
-Classify every current position and candidate as exactly one role:
+Do not require an administrative role for every current position. Record a role only when it already exists in the evidence, when a candidate is genuinely evaluated for allocation and the role is decision-relevant, or when a role-specific constraint must be applied. Absence of a role alone never produces `NOT READY`, `BLOCK`, or an exit recommendation.
+
+When a role is required, use exactly one of:
 
 - `core-compounder`
 - `core-income`
@@ -192,6 +194,8 @@ Apply portfolio-review limits first. Within those limits:
 - `cyclical-income`, `income-satellite`, and `opportunistic` positions must remain smaller than core convictions;
 - `watchlist`, `exit-candidate`, and positions without a clear thesis receive no new capital;
 - high yield alone can never promote a position to a core role.
+
+Current weight is descriptive, not a quality judgment. In particular, `position < 2%` is never an automatic classification, normalization, exit, or readiness gate. Treat small size only as a review signal. It becomes economically problematic only when supported by evidence such as an insufficient thesis, no realistic reinforcement path, redundant exposure, inadequate expected return, disproportionate monitoring cost, clearly superior alternatives, inability to become meaningful, or weak or deteriorating conviction. A 1% position may be eligible when its thesis, valuation, factor contribution, and post-allocation weight pass.
 
 Separate the portfolio into:
 
@@ -211,31 +215,39 @@ Read every matched report and extract explicit evidence when present:
 - dated current price, buy zone, intrinsic-value range, and maximum price;
 - `buy`, `hold`, `do not add`, `watch`, `avoid`, `reduce`, or `sell` conclusion;
 - current weight, target range, portfolio role, and concentration limits;
+- proposed amount, post-allocation weight, distance to the relevant bound, and sector and factor impact;
 - main risks and invalidation conditions;
 - dividend amount, yield, payout, FCF coverage, growth, debt, maturities, income-pocket cap, and exit rule.
 
 Keep the source path and heading or short evidence excerpt for each extracted conclusion. If reports conflict, show the conflict and apply the more conservative conclusion until it is resolved.
 
-Give every candidate one principal status, zero or more secondary statuses, and one next action. Determine the principal blocker in this order:
+Give every candidate one principal status, zero or more secondary statuses, and one next action. Determine the principal status in this order:
 
-1. `ALLOCATION BLOCK` — weight, whole-share sizing, sector, factor, income-pocket, fee, or minimum-cash constraints prevent allocation. Use `DOCUMENTED — ALLOCATION BLOCK` when the evidence is otherwise sufficient. Missing reports are secondary `DOCUMENTATION MISSING` or future documentary work, never the principal blocker here.
-2. `PRICE BLOCK` — price exceeds the buy zone or maximum price, margin of safety is inadequate, or the checklist fails on price. Use `DOCUMENTED — PRICE BLOCK` when the evidence is sufficient.
+1. `BLOCK — <CONSTRAINT>` — post-allocation weight, whole-share sizing, sector, factor, income-pocket, fee, or minimum-cash constraints prevent allocation. Use exact reasons such as `BLOCK — FACTOR CONCENTRATION` or `BLOCK — MINIMUM CASH`. Missing reports are secondary future documentary work, never the principal blocker here.
+2. `WAIT — PRICE` — price exceeds the buy zone or maximum price, margin of safety is inadequate, or the checklist fails on price.
 3. `QUALITY BLOCK` — business quality, thesis, management, balance sheet, debt, dividend safety, or capital-allocation discipline fails.
-4. `DOCUMENTATION MISSING` — genuinely required evidence remains absent after repository discovery. Name each missing item: research, checklist, income report, current price, current weight, target weight, or thesis.
+4. `WAIT — TRIGGER` — quality, valuation, factor contribution, and sizing are acceptable, but a specific documented condition remains unmet.
+5. `INSUFFICIENT DATA FOR THIS CANDIDATE` — genuinely required candidate-specific evidence remains absent after repository discovery. Name each missing item: research, checklist, income report, current price, current weight, target weight, or thesis. Exclude only this candidate and continue evaluating the others.
+6. `ELIGIBLE` — thesis, business quality, valuation, marginal factor contribution, post-allocation weight, cash, debt, and applicable dividend requirements all pass, and expected attractiveness exceeds cash and alternatives.
 
-Use `HOLD — DO NOT ADD` when an existing position is acceptable to retain but reports explicitly say hold, do not reinforce, or keep small. Use `REDUCE / EXIT CANDIDATE` when the review or research explicitly says reduce, exit, sell, thesis-invalid, role-less, or inferior on opportunity cost. Use `ELIGIBLE` only when business, quality, valuation, portfolio weight, cash, role, debt, and applicable dividend requirements all pass.
+Use `HOLD — DO NOT ADD` when an existing position is acceptable to retain but reports explicitly say hold or do not reinforce. `Keep small` alone is descriptive unless accompanied by an economic reason. Use `REDUCE / EXIT CANDIDATE` only when the review or research explicitly says reduce, exit, sell, thesis-invalid, or inferior on opportunity cost; missing role and sub-2% size are never sufficient reasons.
 
-`HOLD CASH` is the portfolio decision when no `ELIGIBLE` candidate deserves capital. A documented candidate can be a good business, a good dividend payer, or a reasonable existing holding without being eligible for reinforcement.
+`HOLD CASH — NO ATTRACTIVE OPPORTUNITY` is a valid portfolio decision when decision data are sufficient but no `ELIGIBLE` candidate currently beats cash. A documented candidate can be a good business, a good dividend payer, or a reasonable existing holding without being eligible for reinforcement.
 
 ## Capital Deployment Status
 
-Assign exactly one portfolio readiness state without replacing the existing decision or candidate statuses:
+Return exactly one portfolio-level decision after candidate evaluation:
 
-- `READY TO DEPLOY`: the portfolio is healthy, cash is deployable, and at least one candidate can be executed now after passing trigger, quality, price, allocation, and documentation gates.
-- `WAITING FOR TRIGGER`: the portfolio is healthy, sufficient cash is available, no candidate is currently eligible, and at least one concrete documented unlock condition exists. This is the normal state of a prepared but disciplined portfolio.
-- `NOT READY`: a structural issue prevents reliable allocation, such as essential documentation missing or stale, migration in progress, excessive concentration, minimum cash not met, too many thesis-less positions, inconsistent data, or no credible candidate and no documented unlock condition.
+- `DEPLOY`: at least one `ELIGIBLE` candidate is a better marginal use of capital than cash. Preserve one-position, multiple-position, and staged allocation as execution subtypes.
+- `WAIT — PRICE`: the best otherwise eligible candidate is blocked only by valuation or margin of safety.
+- `WAIT — TRIGGER`: the best otherwise eligible candidate awaits a specific documented condition.
+- `BLOCK`: allocation is incompatible with post-allocation weight, sector, factor, concentration, minimum cash, income-pocket, or another portfolio constraint.
+- `HOLD CASH — NO ATTRACTIVE OPPORTUNITY`: decision data are sufficient, but no candidate beats cash today.
+- `NOT READY — INSUFFICIENT DECISION DATA`: missing or inconsistent global data prevent reliable comparison, such as absent price data for every viable candidate, incoherent portfolio value or weights, a portfolio review made stale by a major transaction, or portfolio constraints that cannot be calculated.
 
-Evaluate structural readiness first, then immediate eligibility, then documented waiting conditions. Do not use `NOT READY` merely because no opportunity is attractive today. For `WAITING FOR TRIGGER` and `NOT READY`, produce short, measurable `Unlock Conditions` supported by existing evidence, such as a documented maximum price, named report refresh, specified result, weight threshold, or post-trade cash floor. Never invent one or use vague instructions such as “monitor the market.” When none exists, write exactly: `No documented unlock condition is currently available.`
+Candidate-specific missing data do not make the portfolio `NOT READY`; exclude that candidate and continue. Use portfolio-level `NOT READY — INSUFFICIENT DECISION DATA` only when the remaining evidence cannot support any reliable portfolio decision. Small positions, missing administrative roles, concentration that can be enforced as an allocation constraint, minimum cash that can be enforced, no attractive opportunity, and absence of an unlock condition do not by themselves mean `NOT READY`.
+
+For `WAIT — PRICE`, `WAIT — TRIGGER`, `BLOCK`, and `NOT READY — INSUFFICIENT DECISION DATA`, produce short, measurable `Unlock Conditions` supported by existing evidence, such as a documented maximum price, named report refresh, specified result, weight threshold, or post-trade cash floor. Never invent one or use vague instructions such as “monitor the market.” When none exists, write exactly: `No documented unlock condition is currently available.`
 
 ## Execution Workflow
 
@@ -249,27 +261,47 @@ post-trade portfolio value = reported portfolio value + external capital
 post-trade cash weight = post-trade cash / post-trade portfolio value
 ```
 
-Compare both with the cash target or minimum from `portfolio-review`. If the minimum would be breached, stop: `HOLD CASH`.
+Compare both with the cash target or minimum from `portfolio-review`. If a proposed allocation would breach the minimum, mark that candidate `BLOCK — MINIMUM CASH` and continue evaluating feasible alternatives.
 
 ### B. Select and Pre-filter Candidates
 
-Apply explicit or automatic selection rules. In automatic mode, scan for newer documented triggers before deciding that the portfolio review offers no candidate. Then test allocation feasibility and record allocation failures as principal blockers.
+Apply explicit or automatic selection rules. In automatic mode, include economically relevant existing positions as well as newer documented triggers before deciding that no company merits evaluation. Then test allocation feasibility and record allocation failures as principal blockers.
 
 ### C. Discover and Read Candidate Evidence
 
 For each in-scope candidate, search the latest portfolio review, investment checklist, investment research, income investment, thesis tracker, documented buy zones, earnings review, and investment team evidence. Read the matches, build both the evidence map and Trigger Scan, and label freshness before any missing-document or no-trigger conclusion. Mark a source `Searched: Yes` only after actually searching it.
 
-### D. Select the Trigger, Classify Candidates, and Measure Target Gaps
+### D. Evaluate the Marginal Euro
 
-For each candidate, compare the portfolio-review date with the latest relevant evidence and name the selected trigger. No trigger means no allocation, even when the candidate remains worth monitoring.
+For each candidate, compare the portfolio-review date with the latest relevant evidence and name any selected trigger. No trigger does not prevent evaluation of an economically relevant existing position. Use this decision pipeline in order:
 
-For each eligible position:
+```text
+Thesis intact?
+    ↓
+Business quality sufficient?
+    ↓
+Valuation and margin of safety acceptable?
+    ↓
+Marginal factor contribution useful?
+    ↓
+Post-allocation weight compatible?
+    ↓
+Expected attractiveness greater than cash and alternatives?
+    ↓
+DEPLOY / WAIT / BLOCK
+```
+
+For each candidate calculate with `financial_rigor.py` when applicable:
 
 ```text
 gap = relevant target weight - current weight
+post-allocation weight = (current position value + proposed amount) / post-contribution portfolio value
+distance to bound = relevant upper bound - post-allocation weight
 ```
 
-When the target is a range, do not automatically use its midpoint. Explain whether the proposed weight aims at the lower bound, midpoint, or upper bound based on evidence quality, conviction, cyclicality, downside risk, and portfolio concentration.
+Show current weight, proposed amount, post-allocation weight, distance to the relevant bound, sector impact, and factor impact. Current weight alone is never a verdict. When the target is a range, do not automatically use its midpoint. Explain whether the proposed weight aims at the lower bound, midpoint, or upper bound based on evidence quality, conviction, cyclicality, downside risk, and portfolio concentration.
+
+For `Marginal factor contribution`, state the currently overweight and underrepresented factors, the candidate's relevant exposures, and whether the proposed allocation improves, is neutral to, or worsens factor diversification. A good company at a good price is still `BLOCK — FACTOR CONCENTRATION` when its relevant factor is saturated. An underrepresented factor never overrides an inadequate price or weak thesis.
 
 ### E. Rank Eligible Uses of Capital
 
@@ -282,7 +314,7 @@ Rank only `ELIGIBLE` candidates. Compare each with every other eligible candidat
 - valuation and margin of safety;
 - balance sheet and permanent-loss risk;
 - dividend contribution, coverage and growth;
-- diversification benefit;
+- marginal factor contribution and diversification benefit;
 - opportunity cost;
 - final position size;
 - transaction fees.
@@ -299,16 +331,7 @@ Give at least three distinct reasons, one order-cancellation signal, a maximum a
 
 ### G. Select One Decision
 
-Return exactly one portfolio-level decision:
-
-- `HOLD CASH`
-- `ALLOCATE TO ONE POSITION`
-- `ALLOCATE TO MULTIPLE POSITIONS`
-- `STAGED ALLOCATION`
-- `WAIT FOR PRICE`
-- `REJECT ALL CANDIDATES`
-
-Never force allocation of all available capital. Compare the selected decision explicitly with retaining 100% in cash.
+Aggregate candidates using the six portfolio-level decisions defined above. Candidate-local insufficient data exclude only that candidate. If all viable candidates lack decision-critical evidence, use `NOT READY — INSUFFICIENT DECISION DATA`; otherwise decide from the candidates that can be evaluated. Never force allocation of all available capital. Compare the selected decision explicitly with retaining 100% in cash.
 
 ## Dividend Calendar Rules
 
@@ -328,7 +351,7 @@ Save the report to `reports/capital-allocation-{YYYYMMDD}.md`. Use these heading
 
 ```text
 Decision:
-Capital Deployment Status: READY TO DEPLOY | WAITING FOR TRIGGER | NOT READY
+Capital Deployment Status: DEPLOY | WAIT — PRICE | WAIT — TRIGGER | BLOCK | HOLD CASH — NO ATTRACTIVE OPPORTUNITY | NOT READY — INSUFFICIENT DECISION DATA
 Portfolio Health:
 Active trigger:
 Current action:
@@ -353,7 +376,7 @@ Add a calm factual synthesis only when supported, such as `The portfolio is read
 
 Include Portfolio Review, Investment Checklist, Investment Research, Income Investment, Thesis Tracker, Buy Zones, Earnings Review, and Investment Team. Use one row per candidate/source when needed. Show `Yes` only after a search, preserve unknown dates as unknown, and apply the existing freshness rules. Then show `Selected trigger`, triggering-source date, and `Selection reason`. If none is active, write: `No active trigger found after reviewing all available sources.`
 
-For `WAITING FOR TRIGGER` and `NOT READY`, follow the scan with `## Unlock Conditions` and a short evidence-backed list. Omit that heading for `READY TO DEPLOY`.
+For `WAIT — PRICE`, `WAIT — TRIGGER`, `BLOCK`, and `NOT READY — INSUFFICIENT DECISION DATA`, follow the scan with `## Unlock Conditions` and a short evidence-backed list. Omit that heading for `DEPLOY` and `HOLD CASH — NO ATTRACTIVE OPPORTUNITY` unless a concrete condition is already documented.
 
 ## 1. Executive decision
 
@@ -380,21 +403,33 @@ Write `Mode: Automatic` or `Mode: Explicit user choice`.
 
 Use only `Found`, `Missing`, `Not required`, or `Stale`, and list matched report paths directly below the table.
 
+Then separate evidence work exactly as:
+
+```text
+Blocking evidence gaps:
+- None
+
+Documentation backlog:
+- <useful but non-blocking work, or None>
+```
+
+Only evidence needed to decide the next euro belongs under `Blocking evidence gaps`. Candidate-specific gaps name the affected candidate and do not block the others. Tracker completion, administrative role assignment, and other useful cleanup belong under `Documentation backlog` unless a specific allocation constraint requires them.
+
 ## 4. Candidate status
 
-| Candidate | Principal status | Secondary blockers | Next action |
-|---|---|---|---|
+| Candidate | Business quality | Valuation | Current weight | Proposed amount | Post-allocation weight | Marginal factor contribution | Principal status | Next action |
+|---|---|---|---:|---:|---:|---|---|---|
 
 ## 5. Eligible candidate ranking
 
 | Rank | Candidate | Proposed amount | Estimated quantity | Final weight | Reason |
 |---:|---|---:|---:|---:|---|
 
-Show only `ELIGIBLE` candidates. If none qualify, write exactly:
+Show only `ELIGIBLE` candidates. If none qualify, state the already-aggregated portfolio decision. Use the following only when decision data are sufficient and no candidate beats cash:
 
 ```text
 No eligible candidates.
-HOLD CASH.
+HOLD CASH — NO ATTRACTIVE OPPORTUNITY.
 ```
 
 ## 6. Documented but blocked candidates
@@ -402,13 +437,13 @@ HOLD CASH.
 | Candidate | Block type | Current conclusion | Unlock condition |
 |---|---|---|---|
 
-Include price, quality and allocation blocks, `HOLD — DO NOT ADD`, and `REDUCE / EXIT CANDIDATE`. When allocation is already impossible, list missing reports as `Future documentation work`, not as the primary refusal reason.
+Include `WAIT — PRICE`, `WAIT — TRIGGER`, quality and allocation blocks, `HOLD — DO NOT ADD`, `REDUCE / EXIT CANDIDATE`, and `INSUFFICIENT DATA FOR THIS CANDIDATE`. When allocation is already impossible, list missing reports as `Future documentation work`, not as the primary refusal reason.
 
 Add an `Income impact` subsection when at least one in-scope candidate is income-led. Extract available annual dividend, yield, payout, FCF coverage, debt, maturities, cut history, dividend growth, role, maximum weight, and exit rule. Show income before and after, incremental income, yield on allocated capital, dividend quality, payout safety, and income-pocket weight. Distinguish a sound dividend, a sound stock to reinforce, and a sound existing holding that should receive no new capital.
 
 ## 7. Cash comparison
 
-Compare investing, retaining cash, and waiting for a stated price. Cash wins when margin of safety, documentation, allocation capacity, income safety, or opportunity cost is inadequate.
+Compare investing, retaining cash, and waiting for a stated price or trigger. Cash wins when margin of safety, allocation capacity, income safety, or opportunity cost is inadequate. Candidate-specific missing documentation removes that candidate from comparison; it does not automatically make cash win against every other candidate.
 
 ## 8. Execution plan
 
@@ -418,7 +453,7 @@ Otherwise write:
 
 ```text
 No order to place.
-Re-run the skill when an unlock condition is met.
+Re-run the skill when a documented unlock condition is met or material evidence changes.
 ```
 
 ## 9. Journal entry
@@ -428,7 +463,7 @@ Re-run the skill when an unlock condition is met.
 
 ## 10. Next analyses
 
-List only genuinely missing or stale reports. Separately list `thesis-tracker` actions required after a purchase, significant reinforcement, core-position designation, or material thesis change.
+Repeat the `Blocking evidence gaps` and `Documentation backlog` distinction. List only genuinely missing or stale reports, and separately list `thesis-tracker` actions required after a purchase, significant reinforcement, core-position designation, or material thesis change.
 
 End with a limitations statement and reminder that the report is decision support, not a return guarantee.
 
@@ -438,18 +473,18 @@ End with a limitations statement and reminder that the report is decision suppor
 # Capital Allocation Report
 
 ## Capital Deployment Status
-Decision: HOLD CASH
-Capital Deployment Status: WAITING FOR TRIGGER
+Decision: WAIT — PRICE
+Capital Deployment Status: WAIT — PRICE
 Portfolio Health: Healthy
 Active trigger: None
-Current action: Retain cash and monitor documented unlock conditions.
+Current action: Retain cash until a documented buy price is reached.
 
 ## Portfolio Readiness
 Portfolio health: Healthy
 Investment discipline: Maintained
 Cash availability: Sufficient
 Documentation quality: Good
-Active opportunity: None
+Active opportunity: Candidates exist, but none offers adequate margin of safety.
 
 The portfolio is ready. The market is not yet offering a sufficiently attractive opportunity.
 
@@ -473,7 +508,7 @@ No active trigger found after reviewing all available sources.
 - A newer Verizon checklist explicitly concludes BUY.
 
 ## 1. Executive decision
-Decision: HOLD CASH
+Decision: WAIT — PRICE
 Existing cash: 1,346.58 EUR
 External capital: 200.00 EUR
 Total deployable cash: 1,546.58 EUR
@@ -483,7 +518,7 @@ Confidence: High
 
 ## 8. Execution plan
 No order to place.
-Re-run the skill when an unlock condition is met.
+Re-run the skill when a documented unlock condition is met or material evidence changes.
 ```
 
 ## Release Audit
